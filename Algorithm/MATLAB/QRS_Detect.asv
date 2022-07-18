@@ -13,7 +13,7 @@ t = Samples * T;
 lII = data(:,2);
 
 %Setup how many seconds
-PlotTime = 20;
+PlotTime = 5;
 lII_sub = lII(1:(Fs * PlotTime));
 t = t(1:(Fs * PlotTime));
 
@@ -77,54 +77,44 @@ end
 
 %now we have all posible peaks, time to find which is QRS or noise
 % skip first 200 samples, avoid settling time of filters. 
-l = length(lmax);
+l = length(lmax)
+max = 0;
+for i = 5:l
+    if(iy(lmax(i)) > iy(lmax(i-1)  && iy(lmax(i)) > 100)
 
-k = 1;
-for i = 5:(l-1)
-    N0 = iy(lmax(i-1));
-    N1 = iy(lmax(i));
-    N2 = iy(lmax(i+1));
-    if(N1 > 100)
-        if(N1 > N0 && N1 > N2)
-            pk1_loc(k) = lmax(i);
-            k = k + 1;
-        end
     end
 end
 
-%calculate HR between to Peaks
-BPM = RR_Detect(pk1_loc,360);
-
 %lets mark all the point
 figure(1)
+subplot(211)
 plot(lII_sub)
+subplot(212)
+plot(iy)
 hold on
-for i = 1:length(pk1_loc)
-        markpt = pk1_loc(i);
-        plot(pk1_loc(i), lII_sub(markpt), '*r')
+for i = 1:length(lmax)
+        markpt = lmax(i);
+        plot(lmax(i), iy(markpt), '*r')
 end
 hold off
-
-
-
-% %plot signals
-% figure(2);
-% subplot(411)
-% n = length(lII_sub);
-% plot(lII_sub(200:n));
-% subplot(412)
-% n = length(y);
-% plot(y(200:n));
-% hold on
-% n = length(dy);
-% plot(dy(200:n));
-% hold off
-% subplot(413)
-% n = length(dys);
-% plot(dys(200:n));
-% subplot(414)
-% n = length(iy);
-% plot(iy);
-% hold on
-% plot(diy)
+%plot signals
+figure(2);
+subplot(411)
+n = length(lII_sub);
+plot(lII_sub(200:n));
+subplot(412)
+n = length(y);
+plot(y(200:n));
+hold on
+n = length(dy);
+plot(dy(200:n));
+hold off
+subplot(413)
+n = length(dys);
+plot(dys(200:n));
+subplot(414)
+n = length(iy);
+plot(iy);
+hold on
+plot(diy)
 
