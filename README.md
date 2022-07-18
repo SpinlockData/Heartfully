@@ -1,2 +1,2 @@
 # Heartfully
-QRS and Heartbeat detection from algorithm to hardware.   For learning use only, not for medical.  
+QRS and Heartbeat detection from Pan and TOmkin algorithm to hardware implementation.   For learning use only, not for medical treatment diagnosis etc...  
