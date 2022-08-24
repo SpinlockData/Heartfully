@@ -1,5 +1,46 @@
+% clear all;
+% BSD 3-Clause License
+
+% Copyright (c) 2022, SpinlockData
+% All rights reserved.
+
+% Redistribution and use in source and binary forms, with or without
+% modification, are permitted provided that the following conditions are met:
+
+% 1. Redistributions of source code must retain the above copyright notice, this
+%    list of conditions and the following disclaimer.
+
+% 2. Redistributions in binary form must reproduce the above copyright notice,
+%    this list of conditions and the following disclaimer in the documentation
+%    and/or other materials provided with the distribution.
+
+% 3. Neither the name of the copyright holder nor the names of its
+%    contributors may be used to endorse or promote products derived from
+%    this software without specific prior written permission.
+
+% THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+% AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+% IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+% DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+% FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+% DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+% SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+% CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+% OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+% OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+%The following Matlab script file follows the Pan-Tomkin algorithm to detetc R-R interval in ECG
+% Process: ECG->Low Pass Filter->High Pass filter->Deivative Filter->Squaring->Moving window Integration.
+%https://en.wikipedia.org/wiki/Pan%E2%80%93Tompkins_algorithm
+
+%TODO:
+%   -After preliminary testing move into function.  
+%   -Add last part of Algorithm where we detect viability of peak based on a criteria
+
 clear all;
-%Import signal from WFDB from physionet
+%Import signal from WFDB data base from physionet
+%https://physionet.org/about/database/
+
 data = readmatrix("100.csv");
 
 %load sample rate
@@ -12,21 +53,17 @@ Samples = data(:,1);
 t = Samples * T;
 lII = data(:,2);
 
-%Setup how many seconds
+%Setup how many seconds to get look at
 PlotTime = 20;
 lII_sub = lII(1:(Fs * PlotTime));
 t = t(1:(Fs * PlotTime));
 
-
-
-%butter filter design to get flat passband 5-15 hz
-
+%low pass and high pass butterworth  filter design to get flat passband 5-15 hz
 fc = 15;     
 wn = fc / (Fs/2);
 poles = 3;
 [b,a] = butter(poles,wn);
 %freqz(b,a);
-
 
 fc = 5;
 wn = fc / (Fs/2);
@@ -34,7 +71,7 @@ poles = 3;
 [bh,ah] = butter(poles,wn,'high');
 %freqz(bh,ah);
 
-%filter signal first low pass then high pass
+%filter signal,  first low pass then high pass
 y = filter(b,a,lII_sub);
 y = filter(bh,ah,y);
 n = length(y);
@@ -76,7 +113,7 @@ for i = 3:(len)
 end
 
 %now we have all posible peaks, time to find which is QRS or noise
-% skip first 200 samples, avoid settling time of filters. 
+% skip first 200 samples to avoid settling time of filters. 
 l = length(lmax);
 
 k = 1;
@@ -95,7 +132,7 @@ end
 %calculate HR between to Peaks
 BPM = RR_Detect(pk1_loc,360);
 
-%lets mark all the point
+%Now mark all the point
 figure(1)
 plot(lII_sub)
 hold on
