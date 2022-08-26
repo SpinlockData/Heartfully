@@ -1,0 +1,4 @@
+{
+    "DataDirectory":".\\Trial1Data\\",
+    "ECGFile" : "ecg1.csv"
+}
